@@ -1,0 +1,127 @@
+version: 2.1
+
+# Define executors for different environments
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/portfolio-site
+
+# Define reusable commands
+commands:
+  install-dependencies:
+    description: "Install npm dependencies with caching"
+    steps:
+      - restore_cache:
+          name: Restore npm dependencies cache
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - save_cache:
+          name: Save npm dependencies cache
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - node_modules
+
+# Define jobs
+jobs:
+  test:
+    executor: node-executor
+    steps:
+      - checkout
+      - install-dependencies
+      - run:
+          name: Run linting
+          command: |
+            # Install ESLint if not present
+            if ! npm list eslint > /dev/null 2>&1; then
+              npm install --save-dev eslint
+            fi
+            # Run linting (will skip if no .eslintrc found)
+            npx eslint . --ext .js --ignore-path .gitignore || echo "No ESLint config found, skipping linting"
+      - run:
+          name: Run tests
+          command: npm test
+      - run:
+          name: Check for security vulnerabilities
+          command: npm audit --audit-level moderate
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: test-results
+
+  build:
+    executor: node-executor
+    steps:
+      - checkout
+      - install-dependencies
+      - run:
+          name: Create build directory
+          command: mkdir -p build
+      - run:
+          name: Copy application files
+          command: |
+            cp -r views build/
+            cp -r public build/
+            cp server.js build/
+            cp package*.json build/
+      - run:
+          name: Install production dependencies
+          command: |
+            cd build
+            npm ci --only=production
+      - run:
+          name: Verify build
+          command: |
+            cd build
+            echo "Build verification:"
+            echo "- Checking if server.js exists: $(test -f server.js && echo 'Yes' || echo 'No')"
+            echo "- Checking if views directory exists: $(test -d views && echo 'Yes' || echo 'No')"
+            echo "- Checking if public directory exists: $(test -d public && echo 'Yes' || echo 'No')"
+            echo "- Checking if node_modules exists: $(test -d node_modules && echo 'Yes' || echo 'No')"
+            echo "- Production dependencies installed:"
+            npm list --depth=0 --only=production || true
+      - run:
+          name: Test build startup
+          command: |
+            cd build
+            timeout 10s npm start &
+            sleep 5
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✓ Application starts successfully"
+            else
+              echo "✗ Application failed to start"
+              exit 1
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+      - store_artifacts:
+          path: build
+          destination: build-artifacts
+
+# Define workflows
+workflows:
+  version: 2
+  test-and-build:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/

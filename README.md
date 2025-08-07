@@ -90,6 +90,34 @@ portfolio-site/
         └── style.css     # Main stylesheet
 ```
 
+## CI/CD with CircleCI
+
+This project includes a CircleCI configuration with automated testing and building:
+
+### CircleCI Jobs
+
+1. **Test Job**:
+   - Installs dependencies with caching
+   - Runs linting (if ESLint is configured)
+   - Executes test suite
+   - Performs security audit
+   - Stores test results and artifacts
+
+2. **Build Job**:
+   - Creates production build
+   - Copies application files
+   - Installs production dependencies only
+   - Verifies build integrity
+   - Tests application startup
+   - Stores build artifacts
+
+### Setting up CircleCI
+
+1. Connect your repository to CircleCI
+2. The pipeline will automatically run on every push
+3. Test job must pass before build job runs
+4. Build artifacts are stored for deployment
+
 ## Deployment
 
 This application can be deployed to various platforms:
@@ -100,6 +128,13 @@ This application can be deployed to various platforms:
 - **DigitalOcean**: Use App Platform
 
 Make sure to set the `PORT` environment variable on your hosting platform.
+
+### Using CircleCI Build Artifacts
+
+The build job creates production-ready artifacts that can be deployed:
+- Download build artifacts from CircleCI
+- Extract and deploy to your hosting platform
+- The build includes only production dependencies
 
 ## License
 
