@@ -19,8 +19,8 @@ describe('Branch Coverage Tests', () => {
         const portWithEmpty = process.env.PORT || 3000;
         expect(portWithEmpty).toBe(3000);
         
-        // Test with null
-        process.env.PORT = null;
+        // Test with null (delete the variable to simulate null)
+        delete process.env.PORT;
         const portWithNull = process.env.PORT || 3000;
         expect(portWithNull).toBe(3000);
         
