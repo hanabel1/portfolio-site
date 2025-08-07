@@ -46,7 +46,12 @@ app.use((req, res) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Portfolio server running on http://localhost:${PORT}`);
-});
+// Start server only if this file is run directly (not required in tests)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Portfolio server running on http://localhost:${PORT}`);
+    });
+}
+
+// Export the app for testing
+module.exports = app;
