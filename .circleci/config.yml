@@ -106,10 +106,51 @@ jobs:
           path: build
           destination: build-artifacts
 
+  deploy:
+    executor: node-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install-dependencies
+      - run:
+          name: Verify environment variables
+          command: |
+            if [ -z "$VERCEL_TOKEN" ]; then
+              echo "Error: VERCEL_TOKEN environment variable is not set"
+              exit 1
+            fi
+            if [ -z "$VERCEL_ORG_ID" ]; then
+              echo "Error: VERCEL_ORG_ID environment variable is not set"
+              exit 1
+            fi
+            if [ -z "$VERCEL_PROJECT_ID" ]; then
+              echo "Error: VERCEL_PROJECT_ID environment variable is not set"
+              exit 1
+            fi
+            echo "✓ All required environment variables are set"
+      - run:
+          name: Install Vercel CLI
+          command: npm install -g vercel@latest
+      - run:
+          name: Deploy to Vercel Production
+          command: |
+            echo "Deploying to Vercel..."
+            vercel --token $VERCEL_TOKEN \
+                   --prod \
+                   --yes \
+                   --scope $VERCEL_ORG_ID \
+                   --confirm
+      - run:
+          name: Get deployment URL
+          command: |
+            echo "Deployment completed successfully!"
+            echo "Your application is now live on Vercel"
+
 # Define workflows
 workflows:
   version: 2
-  test-and-build:
+  test-build-deploy:
     jobs:
       - test:
           filters:
@@ -125,3 +166,11 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
+            tags:
+              only: /^v.*/
