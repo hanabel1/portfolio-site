@@ -26,7 +26,7 @@ describe('Portfolio Server', () => {
 
     it('should contain welcome content', async () => {
       const response = await request(app).get('/');
-      expect(response.text).toContain('Welcome to My Portfolio');
+      expect(response.text).toContain('Welcome to Hanabel\'s Portfolio');
       expect(response.text).toContain('Full Stack Developer');
     });
 
