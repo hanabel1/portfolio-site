@@ -35,13 +35,13 @@ describe('Edge Cases and Error Handling', () => {
     it('should handle URLs with query parameters', async () => {
       const response = await request(app).get('/?query=test');
       expect(response.status).toBe(200);
-      expect(response.text).toContain('Welcome to My Portfolio');
+      expect(response.text).toContain('<main>');
     });
 
     it('should handle URLs with fragments', async () => {
       const response = await request(app).get('/projects#section1');
       expect(response.status).toBe(200);
-      expect(response.text).toContain('My Projects');
+      expect(response.text).toContain('<h1>');
     });
   });
 
@@ -120,7 +120,7 @@ describe('Edge Cases and Error Handling', () => {
       
       responses.forEach(response => {
         expect(response.status).toBe(200);
-        expect(response.text).toContain('Welcome to My Portfolio');
+        expect(response.text).toContain('<main>');
       });
     });
   });

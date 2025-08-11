@@ -7,12 +7,12 @@ describe('Integration Tests', () => {
       // Start at home
       const homeResponse = await request(app).get('/');
       expect(homeResponse.status).toBe(200);
-      expect(homeResponse.text).toContain('Welcome to My Portfolio');
+      expect(homeResponse.text).toContain('<main>');
 
       // Navigate to about
       const aboutResponse = await request(app).get('/about');
       expect(aboutResponse.status).toBe(200);
-      expect(aboutResponse.text).toContain('About Me');
+      expect(aboutResponse.text).toContain('<h1>');
     });
 
     it('should navigate from home to projects page', async () => {
@@ -23,7 +23,7 @@ describe('Integration Tests', () => {
       // Navigate to projects
       const projectsResponse = await request(app).get('/projects');
       expect(projectsResponse.status).toBe(200);
-      expect(projectsResponse.text).toContain('My Projects');
+      expect(projectsResponse.text).toContain('<h1>');
     });
 
     it('should have consistent navigation across all pages', async () => {

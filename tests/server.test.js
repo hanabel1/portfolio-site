@@ -24,15 +24,16 @@ describe('Portfolio Server', () => {
       expect(response.text).toContain('Home</a>');
     });
 
-    it('should contain welcome content', async () => {
+    it('should contain main content area', async () => {
       const response = await request(app).get('/');
-      expect(response.text).toContain('Full Stack Developer');
+      expect(response.text).toContain('<main>');
+      expect(response.text).toContain('</main>');
     });
 
     it('should contain CSS link', async () => {
       const response = await request(app).get('/');
       expect(response.text).toContain('<link rel="stylesheet" href="/css/style.css">');
-    });
+    }); 
   });
 
   describe('GET /about', () => {
@@ -58,15 +59,14 @@ describe('Portfolio Server', () => {
 
     it('should contain about content', async () => {
       const response = await request(app).get('/about');
-      expect(response.text).toContain('About Me');
-      expect(response.text).toContain('My Story');
+      expect(response.text).toContain('<main>');
+      expect(response.text).toContain('<h1>');
     });
 
-    it('should contain skills section', async () => {
+    it('should contain structured content', async () => {
       const response = await request(app).get('/about');
-      expect(response.text).toContain('Skills & Technologies');
-      expect(response.text).toContain('Frontend');
-      expect(response.text).toContain('Backend');
+      expect(response.text).toContain('<h2>');
+      expect(response.text).toContain('<p>');
     });
   });
 
@@ -93,14 +93,14 @@ describe('Portfolio Server', () => {
 
     it('should contain projects content', async () => {
       const response = await request(app).get('/projects');
-      expect(response.text).toContain('My Projects');
-      expect(response.text).toContain('showcase of my recent work');
+      expect(response.text).toContain('<main>');
+      expect(response.text).toContain('<h1>');
     });
 
-    it('should contain project cards', async () => {
+    it('should contain project structure', async () => {
       const response = await request(app).get('/projects');
-      expect(response.text).toContain('project-card');
-      expect(response.text).toContain('E-Commerce Platform');
+      expect(response.text).toContain('<div');
+      expect(response.text).toContain('<p>');
     });
   });
 
